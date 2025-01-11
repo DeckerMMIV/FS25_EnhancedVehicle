@@ -731,18 +731,18 @@ function FS25_EnhancedVehicle_HUD:drawHUD()
     -- snap degree display
     if self.vehicle.vData.rot ~= nil then
       -- prepare text
-      snap_txt2 = ''
+      local snap_txt2 = nil
       if self.vehicle.vData.is[5] then
         local degree = self.vehicle.vData.is[4]
         if (degree ~= degree) then
           degree = 0
         end
-        snap_txt = string.format("%.1f°", degree)
-        if (Round(self.vehicle.vData.rot, 0) ~= Round(degree, 0)) then
-          snap_txt2 = string.format("%.1f°", self.vehicle.vData.rot)
+        snap_txt = string.format("%.2f°", degree)
+        if (Round(self.vehicle.vData.rot, 2) ~= Round(degree, 2)) then
+          snap_txt2 = string.format("%.2f°", self.vehicle.vData.rot)
         end
       else
-        snap_txt = string.format("%.1f°", self.vehicle.vData.rot)
+        snap_txt = string.format("%.2f°", self.vehicle.vData.rot)
       end
 
       -- render text
@@ -755,7 +755,7 @@ function FS25_EnhancedVehicle_HUD:drawHUD()
 
       renderText(self.snapText1.posX, self.snapText1.posY, self.snapText1.size, snap_txt)
 
-      if (snap_txt2 ~= "") then
+      if snap_txt2 then
         setTextColor(1,1,1,1)
         renderText(self.snapText2.posX, self.snapText2.posY, self.snapText2.size, snap_txt2)
       end

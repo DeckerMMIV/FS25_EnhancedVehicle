@@ -1803,54 +1803,50 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
       _snap = true
     elseif actionName == "FS25_EnhancedVehicle_SNAP_ANGLE1" then
       -- 1°
+      local angleAdjustment = 1 * (keyStatus >= 0 and 1 or -1)
       if self.vData.is[5] then
-        self.vData.want[4] = Round(self.vData.is[4] + 1 * (keyStatus >= 0 and 1 or -1), 0)
+        self.vData.want[4] = ClosestAngle(self.vData.is[4] + angleAdjustment, 1)
         if (self.vData.want[4] ~= self.vData.want[4]) then
           self.vData.want[4] = 0
         end
-        if self.vData.want[4] >= 360 then self.vData.want[4] = self.vData.want[4] - 360 end
-        if self.vData.want[4] < 0 then self.vData.want[4] = self.vData.want[4] + 360 end
-        -- if track is enabled -> also rotate track
-        if self.vData.opMode == 2 and self.vData.track.isCalculated then
-          FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], 1 * (keyStatus >= 0 and 1 or -1)), true, 0, true, 0, 0)
-        end
+        self.vData.want[4] = NormalizeAngle(self.vData.want[4])
         _snap = true
       end
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], 1 * (keyStatus >= 0 and 1 or -1)), true, 0, true, 0, 0)
+        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), true, 0, true, 0, 0)
         _snap = true
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_ANGLE2" then
-    -- 45°
+      -- 45°
+      local angleAdjustment = 45 * (keyStatus >= 0 and 1 or -1)
       if self.vData.is[5] then
-        self.vData.want[4] = Round(self.vData.is[4] + 45 * (keyStatus >= 0 and 1 or -1), 0)
+        self.vData.want[4] = ClosestAngle(self.vData.is[4] + angleAdjustment, 1)
         if (self.vData.want[4] ~= self.vData.want[4]) then
           self.vData.want[4] = 0
         end
-        if self.vData.want[4] >= 360 then self.vData.want[4] = self.vData.want[4] - 360 end
-        if self.vData.want[4] < 0 then self.vData.want[4] = self.vData.want[4] + 360 end
+        self.vData.want[4] = NormalizeAngle(self.vData.want[4])
         _snap = true
       end
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], 45 * (keyStatus >= 0 and 1 or -1)), true, 0, true, 0, 0)
+        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), true, 0, true, 0, 0)
         _snap = true
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_ANGLE3" then
-      -- 90°
+      -- 0.25°
+      local angleAdjustment = 0.25 * (keyStatus >= 0 and 1 or -1)
       if self.vData.is[5] then
-        self.vData.want[4] = Round(self.vData.is[4] + 90 * (keyStatus >= 0 and 1 or -1), 0)
+        self.vData.want[4] = ClosestAngle(self.vData.is[4] + angleAdjustment, 0.25)
         if (self.vData.want[4] ~= self.vData.want[4]) then
           self.vData.want[4] = 0
         end
-        if self.vData.want[4] >= 360 then self.vData.want[4] = self.vData.want[4] - 360 end
-        if self.vData.want[4] < 0 then self.vData.want[4] = self.vData.want[4] + 360 end
+        self.vData.want[4] = NormalizeAngle(self.vData.want[4])
         _snap = true
       end
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], 90 * (keyStatus >= 0 and 1 or -1)), true, 0, true, 0, 0)
+        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), true, 0, true, 0, 0)
         _snap = true
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_TRACK" then
