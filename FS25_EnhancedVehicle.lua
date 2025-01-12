@@ -983,21 +983,18 @@ end
 -- #############################################################################
 
 function FS25_EnhancedVehicle:drawVisualizationLines(_step, _segments, _x, _y, _z, _dX, _dZ, _length, _colorR, _colorG, _colorB, _addY, _spikes, _spikeHeight)
-  _spikes = _spikes or false
-
-  -- our draw one line (recursive) function
-  if _step >= _segments then return end
-
-  p1 = { x = _x, y = _y, z = _z }
-  p2 = { x = p1.x + _dX * _length, y = p1.y, z = p1.z + _dZ * _length }
-  p2.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, p2.x, 0, p2.z) + _addY
-  drawDebugLine(p1.x, p1.y, p1.z, _colorR, _colorG, _colorB, p2.x, p2.y, p2.z, _colorR, _colorG, _colorB)
-
-  if _spikes then
-    drawDebugLine(p2.x, p2.y, p2.z, _colorR, _colorG, _colorB, p2.x, p2.y + _spikeHeight, p2.z, _colorR, _colorG, _colorB)
+  local p1 = { x = _x, y = _y, z = _z }
+  local p2
+  -- For-loop instead of recursion
+  for i = _step, _segments do
+    p2 = { x = p1.x + _dX * _length, y = p1.y, z = p1.z + _dZ * _length }
+    p2.y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, p2.x, 0, p2.z) + _addY
+    drawDebugLine(p1.x, p1.y, p1.z, _colorR, _colorG, _colorB, p2.x, p2.y, p2.z, _colorR, _colorG, _colorB)
+    if _spikes then
+      drawDebugLine(p2.x, p2.y, p2.z, _colorR, _colorG, _colorB, p2.x, p2.y + _spikeHeight, p2.z, _colorR, _colorG, _colorB)
+    end
+    p1 = p2
   end
-
-  FS25_EnhancedVehicle:drawVisualizationLines(_step + 1, _segments, p2.x, p2.y, p2.z, _dX, _dZ, _length, _colorR, _colorG, _colorB, _addY, _spikes, _spikeHeight)
 end
 
 -- #############################################################################
@@ -2004,20 +2001,24 @@ function FS25_EnhancedVehicle:getHeadlandDistance(self)
   local _x = x
   local _z = z
 
+  local y
+  local groundTypeMapId, groundTypeFirstChannel, groundTypeNumChannels
+  local _density, _densityType
+
   local isOnField = true
   local _dist = 0.0
   local _delta = 0.5
 
   while(_dist < 100) do
-    local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
-    local groundTypeMapId, groundTypeFirstChannel, groundTypeNumChannels = g_currentMission.fieldGroundSystem:getDensityMapData(FieldDensityMap.GROUND_TYPE)
-    local _density = getDensityAtWorldPos(groundTypeMapId, x, y, z)
-    local _densityType = bitAND(bitShiftRight(_density, groundTypeFirstChannel), 2^groundTypeNumChannels - 1)
+    y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x, 1, z)
+    groundTypeMapId, groundTypeFirstChannel, groundTypeNumChannels = g_currentMission.fieldGroundSystem:getDensityMapData(FieldDensityMap.GROUND_TYPE)
+    _density = getDensityAtWorldPos(groundTypeMapId, x, y, z)
+    _densityType = bitAND(bitShiftRight(_density, groundTypeFirstChannel), 2^groundTypeNumChannels - 1)
     isOnField = isOnField and (_densityType ~= g_currentMission.grassValue and _densityType ~= 0)
 
     if not isOnField then
       self.vData.track.eofDistance = MathUtil.vector2Length(_x - x, _z - z)
-      _dist = 100
+      return
     end
 
     x = x + (self.vData.dirX * _delta)
@@ -2025,7 +2026,7 @@ function FS25_EnhancedVehicle:getHeadlandDistance(self)
     _dist = _dist + _delta
   end
 
-  if _dist == 100 then self.vData.track.eofDistance = -1 end
+  self.vData.track.eofDistance = -1
 end
 
 -- #############################################################################
