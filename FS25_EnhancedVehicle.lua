@@ -1129,6 +1129,7 @@ function FS25_EnhancedVehicle:onDraw()
         -- with current track orientation
         local dotLR = dx * -self.vData.track.origin.dZ + dz * self.vData.track.origin.dX
         local dotFB = dx * -self.vData.track.origin.dX - dz * self.vData.track.origin.dZ
+        local dir = 1
         if math.abs(dotFB - self.vData.track.dotFBPrev) > 0.001 then
           if dotFB > self.vData.track.dotFBPrev then
             dir = -1
@@ -1147,10 +1148,10 @@ function FS25_EnhancedVehicle:onDraw()
         if self.vData.track.drivingDir == 0 then self.vData.track.drivingDir = 1 else self.vData.track.drivingDir = -1 end
 
         -- prepare for rendering
-        trackFB = dir * 1.5 + self.vData.track.trackFB
-        trackLRMiddle = Round(self.vData.track.trackLR, 0)
-        trackLRLanes  = trackLRMiddle - math.floor(1 - FS25_EnhancedVehicle.track.numberOfTracks / 2) + 0.5
-        trackLRText   = Round(self.vData.track.originalTrackLR , 0) - math.floor(1 - FS25_EnhancedVehicle.track.numberOfTracks / 2)
+        local trackFB = dir * 1.5 + self.vData.track.trackFB
+        local trackLRMiddle = Round(self.vData.track.trackLR, 0)
+        local trackLRLanes  = trackLRMiddle - math.floor(1 - FS25_EnhancedVehicle.track.numberOfTracks / 2) + 0.5
+        local trackLRText   = Round(self.vData.track.originalTrackLR , 0) - math.floor(1 - FS25_EnhancedVehicle.track.numberOfTracks / 2)
 
         -- draw middle line
         local startX = self.vData.track.origin.px + (-self.vData.track.origin.dZ * (trackLRMiddle * self.vData.track.workWidth)) - ( self.vData.track.origin.dX * (trackFB * self.vData.track.workWidth))
@@ -1198,8 +1199,8 @@ function FS25_EnhancedVehicle:onDraw()
         local _s = math.floor(1 - FS25_EnhancedVehicle.track.numberOfTracks / 2)
         for i = _s, (_s + FS25_EnhancedVehicle.track.numberOfTracks), 1 do
           trackFB = dir * 0.5 + self.vData.track.trackFB
-          trackTextFB = trackFB
-          segments = 10
+          local trackTextFB = trackFB
+          local segments = 10
 
           -- middle segment of tracks -> draw longer lines
           if i == 0 or i == 1 then
@@ -1363,12 +1364,12 @@ function FS25_EnhancedVehicle:onRegisterActionEvents(isSelected, isOnActiveVehic
          actionName == "FS25_EnhancedVehicle_SNAP_TRACKO" or
          actionName == "FS25_EnhancedVehicle_SNAP_OPMODE" or
          actionName == "FS25_EnhancedVehicle_ODO_MODE"then
-        _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCall, false, true, true, true)
+        local _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCall, false, true, true, true)
         FS25_EnhancedVehicle:helpMenuPrio(actionName, eventName)
-        _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCallUp, true, false, false, true)
+        local _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCallUp, true, false, false, true)
         FS25_EnhancedVehicle:helpMenuPrio(actionName, eventName)
       else
-        _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCall, false, true, false, true)
+        local _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCall, false, true, false, true)
         FS25_EnhancedVehicle:helpMenuPrio(actionName, eventName)
       end
     end
@@ -1460,6 +1461,11 @@ function FS25_EnhancedVehicle:onActionCallUp(actionName, keyStatus, arg4, arg5, 
 end
 
 -- #############################################################################
+
+local joints_front
+local joints_back
+local implements_front
+local implements_back
 
 function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, arg6)
   if debug > 1 then print("-> " .. myName .. ": onActionCall " .. actionName .. ", keyStatus: " .. keyStatus .. mySelf(self)) end
@@ -2234,6 +2240,8 @@ end
 -- #  - left/right position (local) of the working area
 -- #  - offset of the working area relative to the vehicle
 
+local listOfObjects
+
 function FS25_EnhancedVehicle:enumerateImplements(self)
   if debug > 1 then print("-> " .. myName .. ": enumerateImplements" .. mySelf(self)) end
 
@@ -2365,7 +2373,7 @@ end
 function FS25_EnhancedVehicle:enumerateAttachments2(rootNode, obj)
   if debug > 1 then print("entering: "..obj.rootNode) end
 
-  local idx, attacherJoint
+  --local idx, attacherJoint
   local relX, relY, relZ
 
   if obj.spec_attacherJoints == nil then return end
@@ -2501,7 +2509,7 @@ function FS25_EnhancedVehicle:updateVehiclePhysics( originalFunction, axisForwar
       self.vData.rot = rot
 
       -- when snap to track mode -> get dot
-      dotLR = 0
+      local dotLR = 0
       if self.vData.is[6] then
         local dx, dz = px - self.vData.is[11], pz - self.vData.is[12]
         dotLR = -(dx * -self.vData.is[10] + dz * self.vData.is[9])
