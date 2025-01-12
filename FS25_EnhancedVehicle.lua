@@ -2505,7 +2505,8 @@ function FS25_EnhancedVehicle:updateVehiclePhysics( originalFunction, axisForwar
       end
 
       -- if wanted direction is different than current direction OR we're not on track
-      if self.vData.rot ~= self.vData.is[4] or dotLR ~= 0 then
+      --if self.vData.rot ~= self.vData.is[4] or dotLR ~= 0 then
+      if math.abs(self.vData.rot - self.vData.is[4]) > 0.0001 or dotLR ~= 0 then
 
         -- get movingDirection (1=forward, 0=nothing, -1=reverse) but if nothing we choose forward
         local movingDirection = 0
