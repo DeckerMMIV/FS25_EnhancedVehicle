@@ -1787,7 +1787,7 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
 
       -- turn snap on
       self.vData.want[5] = true
-      self.vData.want[4] = Round(self.vData.is[4] + 180, 0)
+      self.vData.want[4] = ClosestAngle(self.vData.is[4] + 180, 0.25)
       if (self.vData.want[4] ~= self.vData.want[4]) then
         self.vData.want[4] = 0
       end
