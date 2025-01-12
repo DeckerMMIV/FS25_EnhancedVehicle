@@ -401,7 +401,7 @@ function FS25_EnhancedVehicle:resetConfig(disable)
   -- track
   lC:addConfigValue("track",       "distanceAboveGround",          "float", 0.15)
   lC:addConfigValue("track",       "numberOfTracks",               "int",   5)
-  lC:addConfigValue("track",       "showLines",                    "int",   1)
+  lC:addConfigValue("track",       "showLines",                    "int",   2)
   lC:addConfigValue("track",       "hideLines",                    "bool",  false)
   lC:addConfigValue("track",       "hideLinesAfter",               "int",   5)
   lC:addConfigValue("track.color", "red",                          "float", 255/255)
@@ -1702,8 +1702,14 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
         self.vData.opMode = 0
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_LINES_MODE" then
-      FS25_EnhancedVehicle.track.showLines = FS25_EnhancedVehicle.track.showLines + 1
-      if FS25_EnhancedVehicle.track.showLines > 4 then FS25_EnhancedVehicle.track.showLines = 1 end
+      -- Make the toggle of "show lines" behave in a slightly different sequence:
+      --   hidden -> show yellow tracks -> show yellow tracks and vehicle red lines -> show vehicle red lines -> hidden
+      local currentShowLines = FS25_EnhancedVehicle.track.showLines
+      if     currentShowLines == 2 then FS25_EnhancedVehicle.track.showLines = 3
+      elseif currentShowLines == 3 then FS25_EnhancedVehicle.track.showLines = 1
+      elseif currentShowLines == 1 then FS25_EnhancedVehicle.track.showLines = 4
+      else                              FS25_EnhancedVehicle.track.showLines = 2
+      end
       lC:setConfigValue("track", "showLines", FS25_EnhancedVehicle.track.showLines)
     elseif actionName == "FS25_EnhancedVehicle_SNAP_ONOFF" then
       -- steering angle snap on/off
