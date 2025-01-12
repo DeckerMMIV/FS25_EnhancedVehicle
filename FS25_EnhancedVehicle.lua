@@ -758,7 +758,9 @@ function FS25_EnhancedVehicle:onUpdate(dt)
         if self.vData.is[5] and self.vData.is[6] then
           local isOnField = FS25_EnhancedVehicle:getHeadlandInfo(self)
           if self.vData.track.isOnField <= 5 and isOnField then
-            if Round(self.vData.rot, 0) == Round(self.vData.is[4], 0) then
+            --if Round(self.vData.rot, 0) == Round(self.vData.is[4], 0) then
+            --if ClosestAngle(self.vData.rot, 0.25) == ClosestAngle(self.vData.is[4], 0.25) then
+            if math.abs(self.vData.rot - self.vData.is[4]) <= 0.5 then
               self.vData.track.isOnField = self.vData.track.isOnField + 1
               if debug > 1 then print("Headland: enter field") end
             end
