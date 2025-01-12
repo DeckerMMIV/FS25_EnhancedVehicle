@@ -734,9 +734,8 @@ function FS25_EnhancedVehicle_HUD:drawHUD()
       setTextVerticalAlignment(RenderText.VERTICAL_ALIGN_MIDDLE)
       setTextBold(true)
 
-      local snap_txt2 = string.format("%.1f°", self.vehicle.vData.rot)
-      setTextColor(1,1,1,1)
-      renderText(self.snapText2.posX, self.snapText2.posY, self.snapText2.size, snap_txt2)
+      local snap_txt = string.format("%.1f°", self.vehicle.vData.rot)
+      local snap_txt2 = nil
 
       if self.vehicle.vData.is[5] then
         local degree = self.vehicle.vData.is[4]
@@ -744,7 +743,6 @@ function FS25_EnhancedVehicle_HUD:drawHUD()
           degree = 0
         end
 
-        --local snap_txt = "¼½¾"
         local function getQuarterSymbol(angle)
           local fraction = angle % 1
           if fraction < 0.125 or fraction >= 0.875 then return "" end
@@ -753,12 +751,17 @@ function FS25_EnhancedVehicle_HUD:drawHUD()
           return "¾"
         end
 
-        --local snap_txt = string.format("%.2f°", degree)
-        local snap_txt = string.format("%d%s°", degree, getQuarterSymbol(degree))
-        --local color = self.vehicle.vData.is[5] and FS25_EnhancedVehicle_HUD.COLOR.ACTIVE or FS25_EnhancedVehicle_HUD.COLOR.INACTIVE
-        --setTextColor(unpack(color))
-        setTextColor(unpack(FS25_EnhancedVehicle_HUD.COLOR.ACTIVE))
-        renderText(self.snapText1.posX, self.snapText1.posY, self.snapText1.size, snap_txt)
+        snap_txt2 = snap_txt
+        snap_txt = string.format("%d%s°", degree, getQuarterSymbol(degree))
+      end
+
+      local color = self.vehicle.vData.is[5] and FS25_EnhancedVehicle_HUD.COLOR.ACTIVE or FS25_EnhancedVehicle_HUD.COLOR.INACTIVE
+      setTextColor(unpack(color))
+      renderText(self.snapText1.posX, self.snapText1.posY, self.snapText1.size, snap_txt)
+
+      if snap_txt2 then
+        setTextColor(1,1,1,1)
+        renderText(self.snapText2.posX, self.snapText2.posY, self.snapText2.size, snap_txt2)
       end
     end
 
