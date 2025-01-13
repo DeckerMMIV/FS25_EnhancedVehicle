@@ -1795,7 +1795,7 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
         self.vData.want[6] = true
-        local _newrot = Angle2ModAngle(self.vData.is[9], self.vData.is[10], 180)
+        local _newrot = ClosestAngle(Angle2ModAngle(self.vData.is[9], self.vData.is[10], 180), 0.25)
         FS25_EnhancedVehicle:updateTrack(self, true, _newrot, false, 0, true, self.vData.track.deltaTrack, 0)
         self.vData.want[4] = _newrot
 
@@ -1816,7 +1816,7 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
       end
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), true, 0, true, 0, 0)
+        FS25_EnhancedVehicle:updateTrack(self, true, ClosestAngle(Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), 1), true, 0, true, 0, 0)
         _snap = true
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_ANGLE2" then
@@ -1832,7 +1832,7 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
       end
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), true, 0, true, 0, 0)
+        FS25_EnhancedVehicle:updateTrack(self, true, ClosestAngle(Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), 1), true, 0, true, 0, 0)
         _snap = true
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_ANGLE3" then
@@ -1848,7 +1848,7 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
       end
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        FS25_EnhancedVehicle:updateTrack(self, true, Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), true, 0, true, 0, 0)
+        FS25_EnhancedVehicle:updateTrack(self, true, ClosestAngle(Angle2ModAngle(self.vData.is[9], self.vData.is[10], angleAdjustment), 0.25), true, 0, true, 0, 0)
         _snap = true
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_TRACK" then
