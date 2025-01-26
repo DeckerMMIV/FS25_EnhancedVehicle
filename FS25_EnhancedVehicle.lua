@@ -709,14 +709,8 @@ function FS25_EnhancedVehicle:onUpdate(dt)
       self.vData.dirX = self.vData.dx / length
       self.vData.dirZ = self.vData.dz / length
 
-      -- calculate current rotation
-      local rot = 180 - math.deg(math.atan2(self.vData.dx, self.vData.dz))
-
-      -- if cabin is rotated -> direction should rotate also
-      if self.spec_drivable.reverserDirection < 0 then
-        rot = rot + 180
-        if rot >= 360 then rot = rot - 360 end
-      end
+      -- calculate current rotation, including if cabin is rotated -> direction should rotate also
+      local rot = Direction2RotationDeg(self.vData.dx, self.vData.dz, self.spec_drivable.reverserDirection)
       rot = Round(rot, 1)
       if rot >= 360.0 then rot = 0 end
       self.vData.rot = rot
@@ -1734,17 +1728,9 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
 
           -- ToDo: optimize this
           local lx,_,lz = localDirectionToWorld(self.rootNode, 0, 0, 1)
-          local rot1 = 180 - math.deg(math.atan2(lx, lz))
-          if rot1 >= 360 then rot1 = rot1 - 360 end
+          local rot1 = Direction2RotationDeg(lx, lz, self.spec_drivable.reverserDirection)
 
-          -- if cabin is rotated -> direction should rotate also
-          if self.spec_drivable.reverserDirection < 0 then
-            rot1 = rot1 + 180
-            if rot1 >= 360 then rot1 = rot1 - 360 end
-          end
-
-          local rot2 = 180 - math.deg(math.atan2(self.vData.track.origin.dX, self.vData.track.origin.dZ))
-          if rot2 >= 360 then rot2 = rot2 - 360 end
+          local rot2 = Direction2RotationDeg(self.vData.track.origin.dX, self.vData.track.origin.dZ)
           rot2 = ClosestAngle(rot2, 0.25)
           local diffdeg = rot1 - rot2
           if diffdeg > 180 then diffdeg = diffdeg - 360 end
@@ -2060,15 +2046,7 @@ function FS25_EnhancedVehicle:updateTrack(self, updateAngle, updateAngleValue, u
     -- if no angle provided -> use current vehicle rotation
     local _rot = 0
     if updateAngleValue == -1 then
-      local _length = MathUtil.vector2Length(self.vData.dx, self.vData.dz);
-      local _dX = self.vData.dx / _length
-      local _dZ = self.vData.dz / _length
-      _rot = 180 - math.deg(math.atan2(_dX, _dZ))
-
-      -- if cabin is rotated -> angle should rotate also
-      if self.spec_drivable.reverserDirection < 0 then
-        _rot = NormalizeAngle(_rot + 180)
-      end
+      _rot = Direction2RotationDeg(self.vData.dx, self.vData.dz, self.spec_drivable.reverserDirection)
 
       -- smoothen track angle to snapToAngle
       local snapToAngle = Between(Round(FS25_EnhancedVehicle.snap.snapToAngle, 0), 1, 90)
@@ -2432,8 +2410,16 @@ end
 
 -- #############################################################################
 
+function Direction2RotationDeg(x, z, reverserDirection)
+  local rot = 180 - math.deg(MathUtil.getYRotationFromDirection(x,z))
+  if reverserDirection ~= nil and reverserDirection < 0 then
+    rot = rot + 180
+  end
+  return NormalizeAngle(rot)
+end
+
 function Angle2ModAngle(x, z, diff)
-  local rot = 180 - math.deg(math.atan2(x, z))
+  local rot = Direction2RotationDeg(x, z)
   rot = rot + diff
   if rot < 0 then rot = rot + 360 end
   if rot >= 360 then rot = rot - 360 end
@@ -2456,13 +2442,7 @@ function FS25_EnhancedVehicle:updateVehiclePhysics( originalFunction, axisForwar
       -- get current position and rotation of vehicle
       local px, _, pz = localToWorld(self.rootNode, 0, 0, 0)
       local lx, _, lz = localDirectionToWorld(self.rootNode, 0, 0, 1)
-      local rot = 180 - math.deg(math.atan2(lx, lz))
-
-      -- if cabin is rotated -> direction should rotate also
-      if self.spec_drivable.reverserDirection < 0 then
-        rot = rot + 180
-        if rot >= 360 then rot = rot - 360 end
-      end
+      local rot = Direction2RotationDeg(lx, lz, self.spec_drivable.reverserDirection)
       rot = Round(rot, 1)
       if rot >= 360.0 then rot = 0 end
       self.vData.rot = rot
