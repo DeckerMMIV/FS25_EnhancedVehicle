@@ -2601,18 +2601,13 @@ function FS25_EnhancedVehicle:updateWheelsPhysics(originalFunction, dt, currentS
   if debug > 2 then print("function WheelsUtil.updateWheelsPhysics("..self.typeDesc..", "..tostring(dt)..", "..tostring(currentSpeed)..", "..tostring(acceleration)..", "..tostring(doHandbrake)..", "..tostring(stopAndGoBraking)) end
 
   local brakeLights = false
-  if self.vData ~= nil then
+  if self.vData ~= nil and self.vData.is[13] then
     if self:getIsVehicleControlledByPlayer() and self:getIsMotorStarted() then
       -- parkBreakIsOn
-      if self.vData.is[13] then
-        brakeLights = true
-        if currentSpeed >= -0.0003 and currentSpeed <= 0.0003 then
-          brakeLights = false
-        end
-        acceleration = 0
-        currentSpeed = 0
-        doHandbrake = true
-      end
+      brakeLights = not (currentSpeed >= -0.0003 and currentSpeed <= 0.0003)
+      acceleration = 0
+      currentSpeed = 0
+      doHandbrake = true
     end
   end
 
@@ -2622,10 +2617,8 @@ function FS25_EnhancedVehicle:updateWheelsPhysics(originalFunction, dt, currentS
     print("Ooops in updateWheelsPhysics :" .. tostring(result))
   end
 
-  if self:getIsVehicleControlledByPlayer() and self:getIsMotorStarted() then
-    if brakeLights and type(self.setBrakeLightsVisibility) == "function" then
-      self:setBrakeLightsVisibility(true)
-    end
+  if brakeLights and type(self.setBrakeLightsVisibility) == "function" then
+    self:setBrakeLightsVisibility(true)
   end
 
   return result
