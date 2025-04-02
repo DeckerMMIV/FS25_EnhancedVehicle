@@ -103,6 +103,7 @@ function FS25_EnhancedVehicle:new(mission, modDirectory, modName, i18n, gui, inp
                                              'FS25_EnhancedVehicle_AJ_FRONT_FOLD' }
 
   -- for key press delay
+  FS25_EnhancedVehicle.startActionTime = 0
   FS25_EnhancedVehicle.nextActionTime  = 0
   FS25_EnhancedVehicle.deltaActionTime = 500
   FS25_EnhancedVehicle.minActionTime   = 31.25
@@ -1363,7 +1364,7 @@ function FS25_EnhancedVehicle:onRegisterActionEvents(isSelected, isOnActiveVehic
          actionName == "FS25_EnhancedVehicle_SNAP_TRACKO" or
          actionName == "FS25_EnhancedVehicle_SNAP_OPMODE" or
          actionName == "FS25_EnhancedVehicle_ODO_MODE"then
-        _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCall, false, true, true, true)
+        _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCallDown, false, true, true, true)
         FS25_EnhancedVehicle:helpMenuPrio(actionName, eventName)
         _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCallUp, true, false, false, true)
         FS25_EnhancedVehicle:helpMenuPrio(actionName, eventName)
@@ -1402,12 +1403,29 @@ end
 
 -- #############################################################################
 
+function FS25_EnhancedVehicle:onActionCallDown(actionName, keyStatus, arg4, arg5, arg6)
+  if FS25_EnhancedVehicle.startActionTime == 0 then
+    FS25_EnhancedVehicle.startActionTime = g_currentMission.time
+  end
+
+  if g_currentMission.time < FS25_EnhancedVehicle.nextActionTime then
+    return
+  else
+    FS25_EnhancedVehicle.nextActionTime = g_currentMission.time + FS25_EnhancedVehicle.deltaActionTime
+    if FS25_EnhancedVehicle.deltaActionTime >= FS25_EnhancedVehicle.minActionTime then
+      FS25_EnhancedVehicle.deltaActionTime = FS25_EnhancedVehicle.deltaActionTime * 0.5
+    end
+  end
+
+  FS25_EnhancedVehicle.onActionCall(self, actionName, keyStatus, arg4, arg5, arg6)
+end
+
 function FS25_EnhancedVehicle:onActionCallUp(actionName, keyStatus, arg4, arg5, arg6)
   if debug > 1 then print("-> " .. myName .. ": onActionCallUp " .. actionName .. ", keyStatus: " .. keyStatus .. mySelf(self)) end
 
   -- switch operational mode (off -> snap direction -> snap track)
   if actionName == "FS25_EnhancedVehicle_SNAP_OPMODE" then
-    if g_currentMission.time < FS25_EnhancedVehicle.nextActionTime + 1000 then
+    if g_currentMission.time <= FS25_EnhancedVehicle.startActionTime + 1000 then
 
       if self.vData.opModeOld ~= nil then
         self.vData.opMode = self.vData.opModeOld
@@ -1443,7 +1461,7 @@ function FS25_EnhancedVehicle:onActionCallUp(actionName, keyStatus, arg4, arg5, 
   -- switch odo mode
   if FS25_EnhancedVehicle.functionOdoMeterIsEnabled then
     if actionName == "FS25_EnhancedVehicle_ODO_MODE" then
-      if g_currentMission.time < FS25_EnhancedVehicle.nextActionTime + 1000 then
+      if g_currentMission.time <= FS25_EnhancedVehicle.startActionTime + 1000 then
         -- switch odo mode (odo <-> trip)
         self.vData.want[16] = (self.vData.want[16] + 1) % 2
         if self.isClient and not self.isServer then
@@ -1455,6 +1473,7 @@ function FS25_EnhancedVehicle:onActionCallUp(actionName, keyStatus, arg4, arg5, 
   end
 
   -- reset key press delay
+  FS25_EnhancedVehicle.startActionTime = 0
   FS25_EnhancedVehicle.nextActionTime  = 0
   FS25_EnhancedVehicle.deltaActionTime = 500
 end
@@ -1692,10 +1711,7 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
   if FS25_EnhancedVehicle.functionSnapIsEnabled then
     -- switch operational mode (off -> snap direction -> snap track)
     if actionName == "FS25_EnhancedVehicle_SNAP_OPMODE" then
-      if FS25_EnhancedVehicle.nextActionTime == 0 then
-        FS25_EnhancedVehicle.nextActionTime = g_currentMission.time
-      end
-      if g_currentMission.time > FS25_EnhancedVehicle.nextActionTime + 1000 then
+      if g_currentMission.time > FS25_EnhancedVehicle.startActionTime + 1000 then
         if self.vData.opModeOld == nil then
           self.vData.opModeOld = self.vData.opMode
         end
@@ -1861,29 +1877,17 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
     elseif actionName == "FS25_EnhancedVehicle_SNAP_TRACKP" then
     -- track position
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        if g_currentMission.time > FS25_EnhancedVehicle.nextActionTime then
-          FS25_EnhancedVehicle.nextActionTime = g_currentMission.time + FS25_EnhancedVehicle.deltaActionTime
-          if FS25_EnhancedVehicle.deltaActionTime >= FS25_EnhancedVehicle.minActionTime then FS25_EnhancedVehicle.deltaActionTime = FS25_EnhancedVehicle.deltaActionTime * 0.5 end
           FS25_EnhancedVehicle:updateTrack(self, false, -1, false, 0.1 * (keyStatus >= 0 and 1 or -1), true, 0, 0)
-        end
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_TRACKW" then
     -- track width
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        if g_currentMission.time > FS25_EnhancedVehicle.nextActionTime then
-          FS25_EnhancedVehicle.nextActionTime = g_currentMission.time + FS25_EnhancedVehicle.deltaActionTime
-          if FS25_EnhancedVehicle.deltaActionTime >= FS25_EnhancedVehicle.minActionTime then FS25_EnhancedVehicle.deltaActionTime = FS25_EnhancedVehicle.deltaActionTime * 0.5 end
           FS25_EnhancedVehicle:updateTrack(self, false, -1, false, 0, false, 0, 0, 0.1 * (keyStatus >= 0 and 1 or -1))
-        end
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_TRACKO" then
     -- track offset
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
-        if g_currentMission.time > FS25_EnhancedVehicle.nextActionTime then
-          FS25_EnhancedVehicle.nextActionTime = g_currentMission.time + FS25_EnhancedVehicle.deltaActionTime
-          if FS25_EnhancedVehicle.deltaActionTime >= FS25_EnhancedVehicle.minActionTime then FS25_EnhancedVehicle.deltaActionTime = FS25_EnhancedVehicle.deltaActionTime * 0.5 end
           FS25_EnhancedVehicle:updateTrack(self, false, -1, false, 0, false, 0, 0.05 * (keyStatus >= 0 and 1 or -1))
-        end
       end
     elseif actionName == "FS25_EnhancedVehicle_SNAP_TRACKJ" then
     -- track jump
@@ -1948,10 +1952,7 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
   -- reset odo/trip
   if FS25_EnhancedVehicle.functionOdoMeterIsEnabled then
     if actionName == "FS25_EnhancedVehicle_ODO_MODE" then
-      if FS25_EnhancedVehicle.nextActionTime == 0 then
-        FS25_EnhancedVehicle.nextActionTime = g_currentMission.time
-      end
-      if g_currentMission.time > FS25_EnhancedVehicle.nextActionTime + 1000 then
+      if g_currentMission.time > FS25_EnhancedVehicle.startActionTime + 1000 then
         if (self.vData.is[15] > 0) then
           self.vData.want[15] = 0
           if self.isClient and not self.isServer then
