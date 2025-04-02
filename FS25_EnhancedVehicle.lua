@@ -1363,7 +1363,11 @@ function FS25_EnhancedVehicle:onRegisterActionEvents(isSelected, isOnActiveVehic
          actionName == "FS25_EnhancedVehicle_SNAP_TRACKW" or
          actionName == "FS25_EnhancedVehicle_SNAP_TRACKO" or
          actionName == "FS25_EnhancedVehicle_SNAP_OPMODE" or
-         actionName == "FS25_EnhancedVehicle_ODO_MODE"then
+         actionName == "FS25_EnhancedVehicle_ODO_MODE" or
+         actionName == "FS25_EnhancedVehicle_SNAP_ANGLE1" or
+         actionName == "FS25_EnhancedVehicle_SNAP_ANGLE2" or
+         actionName == "FS25_EnhancedVehicle_SNAP_ANGLE3"
+      then
         _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCallDown, false, true, true, true)
         FS25_EnhancedVehicle:helpMenuPrio(actionName, eventName)
         _, eventName = g_inputBinding:registerActionEvent(actionName, self, FS25_EnhancedVehicle.onActionCallUp, true, false, false, true)
