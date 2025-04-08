@@ -1188,7 +1188,7 @@ function FS25_EnhancedVehicle:onDraw()
         -- prepare for track numbers
         local activeCamera = self:getActiveCamera()
         local rx, ry, rz = getWorldRotation(activeCamera.cameraNode)
-        setTextColor(FS25_EnhancedVehicle.track.color[1], FS25_EnhancedVehicle.track.color[2], FS25_EnhancedVehicle.track.color[3], 1)
+--        setTextColor(FS25_EnhancedVehicle.track.color[1], FS25_EnhancedVehicle.track.color[2], FS25_EnhancedVehicle.track.color[3], 1)
         setTextAlignment(RenderText.ALIGN_CENTER)
 
         -- draw lines
@@ -1235,8 +1235,6 @@ function FS25_EnhancedVehicle:onDraw()
 
           -- render track number
           if i < _s + FS25_EnhancedVehicle.track.numberOfTracks then
-            setTextBold(false)
-            setTextColor(FS25_EnhancedVehicle.track.color[1], FS25_EnhancedVehicle.track.color[2], FS25_EnhancedVehicle.track.color[3], 1)
             local _curTrack = math.floor(trackLRText)
             if Round(self.vData.track.originalTrackLR, 0) + self.vData.track.deltaTrack == _curTrack then
               setTextBold(true)
@@ -1245,6 +1243,9 @@ function FS25_EnhancedVehicle:onDraw()
               else
                 setTextColor(1, 1, 1, 1)
               end
+            else
+              setTextBold(false)
+              setTextColor(FS25_EnhancedVehicle.track.color[1], FS25_EnhancedVehicle.track.color[2], FS25_EnhancedVehicle.track.color[3], 1)
             end
             renderText3D(textX, textY, textZ, rx, ry, rz, FS25_EnhancedVehicle.fS * Between(self.vData.track.workWidth * 5, 40, 90), tostring(_curTrack))
           end
@@ -1336,7 +1337,12 @@ function FS25_EnhancedVehicle:onRegisterActionEvents(isSelected, isOnActiveVehic
   if isOnActiveVehicle and self:getIsControlled() then
 
     -- assemble list of actions to attach
-    local actionList = FS25_EnhancedVehicle.actions.global
+--    local actionList = FS25_EnhancedVehicle.actions.global
+    local actionList = {}
+    for _, v in ipairs(FS25_EnhancedVehicle.actions.global) do
+      table.insert(actionList, v)
+    end
+--print("EV - #actionList = " .. (#actionList))
     for _, v in ipairs(FS25_EnhancedVehicle.actions.snap) do
       table.insert(actionList, v)
     end
