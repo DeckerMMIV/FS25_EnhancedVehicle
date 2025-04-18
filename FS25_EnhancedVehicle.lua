@@ -1765,17 +1765,11 @@ function FS25_EnhancedVehicle:onActionCall(actionName, keyStatus, arg4, arg5, ar
 
       -- turn snap on
       self.vData.want[5] = true
-      self.vData.want[4] = ClosestAngle(self.vData.is[4] + 180, 0.25)
-      if (self.vData.want[4] ~= self.vData.want[4]) then
-        self.vData.want[4] = 0
-      end
-      if self.vData.want[4] >= 360 then self.vData.want[4] = self.vData.want[4] - 360 end
+      self.vData.want[4] = NormalizeAngle(ClosestAngle(self.vData.is[4] + 180, 0.25))
       -- if track is enabled -> also rotate track
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
         self.vData.want[6] = true
-        local _newrot = ClosestAngle(Angle2ModAngle(self.vData.is[9], self.vData.is[10], 180), 0.25)
-        FS25_EnhancedVehicle:updateTrack(self, true, _newrot, false, 0, true, self.vData.track.deltaTrack, 0)
-        self.vData.want[4] = _newrot
+        FS25_EnhancedVehicle:updateTrack(self, true, self.vData.want[4], false, 0, true, self.vData.track.deltaTrack, 0)
 
         -- update headland
         self.vData.track.isOnField = FS25_EnhancedVehicle:getHeadlandInfo(self) and 10 or 0
