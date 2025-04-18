@@ -738,7 +738,7 @@ function FS25_EnhancedVehicle_HUD:drawHUD()
       local snap_txt2 = nil
 
       if self.vehicle.vData.is[5] then
-        local degree = (self.vehicle.vData.is[4]) % 360
+        local degree = (180 + self.vehicle.vData.is[4]) % 360
 
         local function getQuarterSymbol(angle)
           local fraction = angle % 1
