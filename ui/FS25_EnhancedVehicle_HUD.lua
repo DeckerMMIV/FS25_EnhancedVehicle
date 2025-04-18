@@ -734,11 +734,11 @@ function FS25_EnhancedVehicle_HUD:drawHUD()
       setTextVerticalAlignment(RenderText.VERTICAL_ALIGN_MIDDLE)
       setTextBold(true)
 
-      local snap_txt = string.format("%.1f°", self.vehicle.vData.rot)
+      local snap_txt = string.format("%.1f°", (180 + self.vehicle.vData.rot) % 360)
       local snap_txt2 = nil
 
       if self.vehicle.vData.is[5] then
-        local degree = self.vehicle.vData.is[4] % 360
+        local degree = (self.vehicle.vData.is[4]) % 360
 
         local function getQuarterSymbol(angle)
           local fraction = angle % 1

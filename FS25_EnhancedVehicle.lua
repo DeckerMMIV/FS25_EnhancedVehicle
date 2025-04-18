@@ -711,9 +711,7 @@ function FS25_EnhancedVehicle:onUpdate(dt)
 
       -- calculate current rotation, including if cabin is rotated -> direction should rotate also
       local rot = Direction2RotationDeg(self.vData.dx, self.vData.dz, self.spec_drivable.reverserDirection)
-      rot = Round(rot, 1)
-      if rot >= 360.0 then rot = 0 end
-      self.vData.rot = rot
+      self.vData.rot = NormalizeAngle(Round(rot, 1))
 
       -- when track assistant is active and calculated
       if self.vData.opMode == 2 and self.vData.track.isCalculated then
@@ -2392,14 +2390,7 @@ end
 -- # make sure an angle is >= 0 and < 360
 
 function NormalizeAngle(a)
-  while a < 0 do
-    a = a + 360
-  end
-  while a >= 360 do
-    a = a - 360
-  end
-
-  return a
+  return (a % 360)
 end
 
 -- #############################################################################
@@ -2410,14 +2401,6 @@ function Direction2RotationDeg(x, z, reverserDirection)
     rot = rot + 180
   end
   return NormalizeAngle(rot)
-end
-
-function Angle2ModAngle(x, z, diff)
-  local rot = Direction2RotationDeg(x, z)
-  rot = rot + diff
-  if rot < 0 then rot = rot + 360 end
-  if rot >= 360 then rot = rot - 360 end
-  return rot
 end
 
 -- #############################################################################
